@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Santuario - Meditación Elemental</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sanctuary: {
+                            base: '#070b14',
+                            card: '#0f172a',
+                            subcard: '#1e293b',
+                            border: '#334155',
+                            gold: '#fde047',
+                            fire: '#f97316',
+                            water: '#38bdf8',
+                            air: '#c084fc',
+                            earth: '#34d399'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth Breathing Animations */
+        @keyframes breathCycle {
+            0%, 100% { transform: scale(0.9); opacity: 0.5; }
+            40% { transform: scale(1.35); opacity: 0.95; }
+            60% { transform: scale(1.35); opacity: 0.95; }
+            90% { transform: scale(0.9); opacity: 0.5; }
+        }
+        .breathing-active {
+            animation: breathCycle 10s infinite ease-in-out;
+        }
+
+        /* Ambient Glow Transitions */
+        .ambient-glow {
+            box-shadow: 0 0 35px -8px rgba(56, 189, 248, 0.25);
+        }
+
+        /* Water Sound Ripples */
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+        .ripple-effect {
+            animation: ripple 3s infinite cubic-bezier(0.1, 0.5, 0.5, 1);
+        }
+
+        /* Glassmorphism details */
+        .glass-panel {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.85) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-sanctuary-base text-slate-100 min-h-screen flex flex-col items-center justify-start px-4 py-8 antialiased selection:bg-amber-400/30 selection:text-amber-200">
+
+    <div class="w-full max-w-md flex flex-col gap-6 pb-12">
+        
+        <!-- BIENVENIDA / AFIRMACIÓN HERO -->
+        <header class="glass-panel border border-sanctuary-gold/25 rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-28 h-28 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
+            <span class="inline-block text-[11px] font-semibold tracking-widest text-sanctuary-gold uppercase mb-2 px-3 py-1 bg-sanctuary-gold/10 rounded-full border border-sanctuary-gold/20">
+                Afirmación Semilla
+            </span>
+            <h1 class="text-xl sm:text-2xl font-light leading-snug tracking-tight text-white mb-3">
+                «Me entrego a mis valores más altos y confío en el espacio del presente.»
+            </h1>
+            <p class="text-xs text-slate-400 font-light italic">
+                Inhala la presencia. Exhala la prisa.
+            </p>
+        </header>
+
+        <!-- NAVEGACIÓN RÁPIDA / STATUS -->
+        <div class="flex items-center justify-between text-xs text-slate-400 px-2">
+            <span class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Santuario Abierto · Sin Costo</span>
+            </span>
+            <span class="text-[11px] bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/60 text-slate-300">
+                iOS Optimizado
+            </span>
+        </div>
+
+        <!-- 1. ELEMENTO FUEGO (Modo Mañana / 1 min) -->
+        <section class="glass-panel border-l-4 border-l-sanctuary-fire border border-slate-700/50 rounded-2xl p-5 shadow-lg flex flex-col gap-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                        <span>🔥</span> Fuego · Mañana
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Activación consciente y prana (1 minuto)</p>
+                </div>
+                <span id="fireTimerDisplay" class="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-orange-300 border border-orange-500/20">
+                    01:00
+                </span>
+            </div>
+
+            <!-- Guía visual de respiración -->
+            <div class="flex flex-col items-center justify-center py-4 bg-slate-900/60 rounded-xl border border-slate-800/60 relative overflow-hidden min-h-[140px]">
+                <div id="breathCircle" class="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-600 to-orange-400 opacity-60 flex items-center justify-center shadow-lg transition-transform duration-700">
+                    <span id="breathText" class="text-[11px] font-semibold tracking-wider text-slate-900 uppercase">Listo</span>
+                </div>
+                <p id="breathInstruction" class="text-xs text-slate-300 mt-4 text-center px-4 font-light">
+                    Toca iniciar para sincronizar tu respiración matutina.
+                </p>
+            </div>
+
+            <div class="flex gap-2">
+                <button id="fireStartBtn" onclick="toggleFireSession()" class="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-medium text-xs py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.98]">
+                    Iniciar Activación (1 min)
+                </button>
+                <button onclick="resetFireSession()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2.5 rounded-xl border border-slate-700 transition-all">
+                    Reiniciar
+                </button>
+            </div>
+        </section>
+
+        <!-- 2. ELEMENTO AGUA (Modo Noche / Temporizador) -->
+        <section class="glass-panel border-l-4 border-l-sanctuary-water border border-slate-700/50 rounded-2xl p-5 shadow-lg flex flex-col gap-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                        <span>💧</span> Agua · Noche
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Calma profunda y paisaje sonoro de lluvia</p>
+                </div>
+                <span id="waterTimerStatus" class="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-sky-300 border border-sky-500/20">
+                    Inactivo
+                </span>
+            </div>
+
+            <!-- Controlador acústico de lluvia -->
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/60 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-300 font-light flex items-center gap-1.5">
+                        <span id="rainIndicator" class="w-2 h-2 rounded-full bg-slate-600"></span>
+                        Lluvia serena y rosa sutil
+                    </span>
+                    <button id="waterAudioToggle" onclick="toggleRainSound()" class="text-xs px-3 py-1.5 rounded-lg border border-sky-500/40 text-sky-300 bg-sky-950/40 hover:bg-sky-900/50 transition-all active:scale-95">
+                        Reproducir Sonido
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs text-slate-400">
+                    <span>Apagado automático:</span>
+                    <div class="flex gap-1">
+                        <button onclick="setSleepTimer(2)" class="timer-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] transition-all" data-mins="2">2m</button>
+                        <button onclick="setSleepTimer(5)" class="timer-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] transition-all" data-mins="5">5m</button>
+                        <button onclick="setSleepTimer(15)" class="timer-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] transition-all" data-mins="15">15m</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. ELEMENTO AIRE (Sabiduría / Daily Digest) -->
+        <section class="glass-panel border-l-4 border-l-sanctuary-air border border-slate-700/50 rounded-2xl p-5 shadow-lg flex flex-col gap-3">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                    <span>🌬️</span> Aire · Sabiduría
+                </h2>
+                <button onclick="nextDigest()" class="text-[11px] text-purple-300 hover:text-purple-200 border border-purple-500/30 bg-purple-950/30 px-2 py-0.5 rounded-md transition-all">
+                    Cambiar Cápsula ↻
+                </button>
+            </div>
+
+            <!-- Ilustración sutil de los Koshas (SVG Minimalista) -->
+            <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800/60 flex flex-col sm:flex-row items-center gap-4">
+                <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                    <svg viewBox="0 0 100 100" class="w-full h-full text-purple-400 stroke-current fill-none">
+                        <!-- Cuerpos Sutiles Concéntricos (Koshas) -->
+                        <circle cx="50" cy="50" r="42" stroke-width="0.7" stroke-dasharray="2,2" class="opacity-40 animate-spin" style="animation-duration: 40s;"></circle>
+                        <circle cx="50" cy="50" r="32" stroke-width="1" class="opacity-60"></circle>
+                        <circle cx="50" cy="50" r="20" stroke-width="1.2" class="opacity-80"></circle>
+                        <!-- Punto Central: El Ser / Atman -->
+                        <circle cx="50" cy="50" r="3" class="fill-current text-sanctuary-gold"></circle>
+                        <line x1="50" y1="10" x2="50" y2="90" stroke-width="0.5" stroke-dasharray="1,2" class="opacity-30"></line>
+                    </svg>
+                </div>
+                <div class="flex-1 text-left">
+                    <span id="digestTopic" class="text-[10px] uppercase font-bold tracking-wider text-purple-400">
+                        Pranamaya Kosha
+                    </span>
+                    <p id="digestContent" class="text-xs text-slate-300 font-light leading-relaxed mt-0.5">
+                        La respiración es el puente entre el cuerpo físico y la mente. Cuando exhalas más lento de lo que inhalas, tu sistema nervioso recibe la señal biológica de seguridad total.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. ELEMENTO TIERRA (Raíces / Linaje / Footer) -->
+        <footer class="glass-panel border-l-4 border-l-sanctuary-earth border border-slate-700/50 rounded-2xl p-5 shadow-lg flex flex-col gap-3">
+            <h2 class="text-sm font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                <span>🌱</span> Tierra · Raíces y Linaje
+            </h2>
+            <p class="text-xs text-slate-400 leading-relaxed font-light">
+                Espacio creado por una profesora de <strong>Yoga Integral (600h)</strong> formada en la Escuela Mahajakti (España). Proyecto sin muros de pago ni anuncios comerciales.
+            </p>
+            
+            <div class="pt-2 border-t border-slate-800/80 flex flex-col gap-1.5 text-[11px] text-slate-400">
+                <span class="text-slate-300 font-medium">Fuentes & Lecturas de Referencia:</span>
+                <div class="flex flex-wrap gap-2 text-[11px] text-slate-400">
+                    <span class="bg-slate-800/90 px-2 py-0.5 rounded border border-slate-700/60">Ram Dass</span>
+                    <span class="bg-slate-800/90 px-2 py-0.5 rounded border border-slate-700/60">Deepak Chopra</span>
+                    <span class="bg-slate-800/90 px-2 py-0.5 rounded border border-slate-700/60">Sadhguru</span>
+                    <span class="bg-slate-800/90 px-2 py-0.5 rounded border border-slate-700/60">Filosofía Védica</span>
+                </div>
+            </div>
+
+            <div class="mt-2 text-center text-[10px] text-slate-400 flex items-center justify-center gap-2">
+                <span>Código Libre (MIT)</span>
+                <span>•</span>
+                <span>Hecho para la paz</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT: LÓGICA Y AUDIO STANDALONE SINTETIZADO (Web Audio API) -->
+    <script>
+        // 1. Audio Context para no depender de archivos MP3 externos en iPhone
+        let audioCtx = null;
+        let rainNode = null;
+        let rainGain = null;
+        let isRainPlaying = false;
+        let sleepTimerId = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Tono suave para campana tibetana (Fuego)
+        function playChime() {
+            const ctx = getAudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(528, ctx.currentTime); // Frecuencia 528Hz (Calma/Amor)
+
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 3.0);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 3.1);
+        }
+
+        // Síntesis de sonido de lluvia / ruido rosa suave (Agua)
+        function toggleRainSound() {
+            const ctx = getAudioContext();
+            const btn = document.getElementById('waterAudioToggle');
+            const ind = document.getElementById('rainIndicator');
+
+            if (isRainPlaying) {
+                stopRainSound();
+                btn.innerText = 'Reproducir Sonido';
+                ind.className = 'w-2 h-2 rounded-full bg-slate-600';
+            } else {
+                startRainSound();
+                btn.innerText = 'Detener Sonido';
+                ind.className = 'w-2 h-2 rounded-full bg-sky-400 animate-pulse';
+            }
+        }
+
+        function startRainSound() {
+            const ctx = getAudioContext();
+            const bufferSize = ctx.sampleRate * 2;
+            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+
+            // Generador de ruido rosa filtrado (sonido lluvia)
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+                b6 = white * 0.115926;
+            }
+
+            const whiteNoise = ctx.createBufferSource();
+            whiteNoise.buffer = noiseBuffer;
+            whiteNoise.loop = true;
+
+            // Filtro paso bajo para efecto lluvia suave
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(800, ctx.currentTime);
+
+            rainGain = ctx.createGain();
+            rainGain.gain.setValueAtTime(0.01, ctx.currentTime);
+            rainGain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 1.5);
+
+            whiteNoise.connect(filter);
+            filter.connect(rainGain);
+            rainGain.connect(ctx.destination);
+
+            whiteNoise.start();
+            rainNode = whiteNoise;
+            isRainPlaying = true;
+        }
+
+        function stopRainSound() {
+            if (rainGain && audioCtx) {
+                rainGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 1.0);
+                setTimeout(() => {
+                    if (rainNode) {
+                        try { rainNode.stop(); } catch(e) {}
+                        rainNode.disconnect();
+                        rainNode = null;
+                    }
+                    isRainPlaying = false;
+                }, 1000);
+            }
+        }
+
+        // Temporizador de sueño para el elemento Agua
+        function setSleepTimer(minutes) {
+            if (sleepTimerId) clearTimeout(sleepTimerId);
+            
+            // Si el sonido no está activo, encenderlo
+            if (!isRainPlaying) {
+                toggleRainSound();
+            }
+
+            document.querySelectorAll('.timer-btn').forEach(btn => {
+                if (parseInt(btn.getAttribute('data-mins')) === minutes) {
+                    btn.classList.add('bg-sky-600', 'text-white', 'border-sky-400');
+                    btn.classList.remove('bg-slate-800', 'text-slate-300');
+                } else {
+                    btn.classList.remove('bg-sky-600', 'text-white', 'border-sky-400');
+                    btn.classList.add('bg-slate-800', 'text-slate-300');
+                }
+            });
+
+            const status = document.getElementById('waterTimerStatus');
+            status.innerText = `Apaga en ${minutes}m`;
+
+            sleepTimerId = setTimeout(() => {
+                stopRainSound();
+                document.getElementById('waterAudioToggle').innerText = 'Reproducir Sonido';
+                document.getElementById('rainIndicator').className = 'w-2 h-2 rounded-full bg-slate-600';
+                status.innerText = 'Apagado';
+                document.querySelectorAll('.timer-btn').forEach(btn => {
+                    btn.classList.remove('bg-sky-600', 'text-white', 'border-sky-400');
+                    btn.classList.add('bg-slate-800', 'text-slate-300');
+                });
+            }, minutes * 60 * 1000);
+        }
+
+        // 2. Lógica del Elemento Fuego (Respiración 1 minuto)
+        let fireInterval = null;
+        let fireSecondsLeft = 60;
+        let isFireRunning = false;
+        let breathPhaseInterval = null;
+
+        function toggleFireSession() {
+            if (isFireRunning) {
+                pauseFireSession();
+            } else {
+                startFireSession();
+            }
+        }
+
+        function startFireSession() {
+            isFireRunning = true;
+            playChime();
+            document.getElementById('fireStartBtn').innerText = 'Pausar';
+            document.getElementById('fireStartBtn').classList.replace('from-orange-600', 'from-amber-700');
+            
+            const circle = document.getElementById('breathCircle');
+            const txt = document.getElementById('breathText');
+            const instruction = document.getElementById('breathInstruction');
+
+            // Ciclo de Respiración: Inhala (4s), Retén (2s), Exhala (4s)
+            let secondInCycle = 0;
+            const runBreathCycle = () => {
+                const step = secondInCycle % 10;
+                if (step === 0) {
+                    txt.innerText = 'Inhala';
+                    instruction.innerText = 'Inhala expandiendo el abdomen y pecho...';
+                    circle.style.transform = 'scale(1.35)';
+                    circle.style.opacity = '0.95';
+                } else if (step === 4) {
+                    txt.innerText = 'Retén';
+                    instruction.innerText = 'Sostén con calma y suavidad en el pecho.';
+                } else if (step === 6) {
+                    txt.innerText = 'Exhala';
+                    instruction.innerText = 'Exhala soltando toda tensión.';
+                    circle.style.transform = 'scale(0.95)';
+                    circle.style.opacity = '0.55';
+                }
+                secondInCycle++;
+            };
+
+            runBreathCycle();
+            breathPhaseInterval = setInterval(runBreathCycle, 1000);
+
+            fireInterval = setInterval(() => {
+                fireSecondsLeft--;
+                const mins = String(Math.floor(fireSecondsLeft / 60)).padStart(2, '0');
+                const secs = String(fireSecondsLeft % 60).padStart(2, '0');
+                document.getElementById('fireTimerDisplay').innerText = `${mins}:${secs}`;
+
+                if (fireSecondsLeft <= 0) {
+                    resetFireSession();
+                    playChime();
+                    instruction.innerText = 'Sesión de Fuego completada. Tu prana está despierto.';
+                }
+            }, 1000);
+        }
+
+        function pauseFireSession() {
+            isFireRunning = false;
+            clearInterval(fireInterval);
+            clearInterval(breathPhaseInterval);
+            document.getElementById('fireStartBtn').innerText = 'Reanudar';
+            document.getElementById('breathInstruction').innerText = 'Pausa momentánea.';
+        }
+
+        function resetFireSession() {
+            isFireRunning = false;
+            clearInterval(fireInterval);
+            clearInterval(breathPhaseInterval);
+            fireSecondsLeft = 60;
+            document.getElementById('fireTimerDisplay').innerText = '01:00';
+            document.getElementById('fireStartBtn').innerText = 'Iniciar Activación (1 min)';
+            document.getElementById('breathText').innerText = 'Listo';
+            document.getElementById('breathInstruction').innerText = 'Toca iniciar para sincronizar tu respiración matutina.';
+            const circle = document.getElementById('breathCircle');
+            circle.style.transform = 'scale(1)';
+            circle.style.opacity = '0.6';
+        }
+
+        // 3. Lógica del Elemento Aire (Cápsulas de Sabiduría)
+        const digests = [
+            {
+                topic: "Pranamaya Kosha (El Cuerpo Energético)",
+                content: "La respiración es el puente entre el cuerpo físico y la mente. Cuando exhalas más lento de lo que inhalas, tu sistema nervioso parasimpático recibe la señal biológica de seguridad total."
+            },
+            {
+                topic: "Annamaya Kosha (El Cuerpo Físico)",
+                content: "La verdadera meditación no exige inmovilidad forzada. Una micropausa de 60 segundos relajando la mandíbula y los hombros antes de mirar el móvil transforma la postura de todo tu día."
+            },
+            {
+                topic: "Manomaya Kosha (La Mente y los Pensamientos)",
+                content: "Los pensamientos son como olas en la superficie del agua. No intentamos detener las olas; simplemente nos sumergimos a una profundidad donde reina la calma absoluta."
+            }
+        ];
+        let currentDigestIndex = 0;
+
+        function nextDigest() {
+            currentDigestIndex = (currentDigestIndex + 1) % digests.length;
+            document.getElementById('digestTopic').innerText = digests[currentDigestIndex].topic;
+            document.getElementById('digestContent').innerText = digests[currentDigestIndex].content;
+        }
+    </script>
+</body>
+</html>
